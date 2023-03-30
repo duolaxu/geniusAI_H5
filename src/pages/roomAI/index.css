@@ -1,0 +1,15 @@
+::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+    color: transparent;
+}
+
+.viewBtn {
+    width: 17%;
+    height: 60px;
+    border-radius: 30px;
+    border: 1px solid rgb(254, 108, 57);
+    background-color: rgb(254, 108, 57);
+    color: white;
+}

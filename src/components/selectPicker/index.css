@@ -1,0 +1,28 @@
+.select {
+    position: fixed;
+    z-index: 10;
+    /* top: 55rpx; */
+    left: 10rpx;
+    bottom: 130rpx;
+    width: 100rpx;
+    overflow: auto;
+    height: 0;
+    max-height: 400rpx;
+    background-color: rgba(254, 254, 254, 1);
+    box-sizing: border-box;
+    transition: height 0.5s;
+    text-align: center;
+    border-radius: 0px 0px 5px 5px;
+    /* 高度变换过渡 */
+}
+
+.select .type {
+    color: rgb(112, 112, 112);
+    border-bottom: 2px solid #dadada;
+    padding: 6rpx;
+    height: 50rpx;
+}
+
+/* .select :first-child {
+    border: 0;
+} */

@@ -1,0 +1,9 @@
+{
+  "miniprogramRoot": "./",
+  "projectname": "GeniusAI",
+  "appid": "wx6234d8dcc7cf6acb",
+  "setting": {
+    "es6": false,
+    "minified": false
+  }
+}

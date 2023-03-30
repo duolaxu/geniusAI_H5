@@ -1,0 +1,69 @@
+.flexCenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.flexColumn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.flexStart {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.flexAround {
+    display: flex;
+    justify-content: space-around;
+}
+
+.flexBetween {
+    display: flex;
+    justify-content: space-between;
+}
+
+.flexEnd {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.avatar {
+    width: 70rpx;
+    height: 70rpx;
+    border-radius: 50%;
+}
+
+.content View {
+    margin-top: 10rpx;
+}
+
+.triangle_1 {
+    width: 0px;
+    height: 0px;
+    border: 10rpx solid rgb(254, 108, 54);
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+    border-right-color: transparent;
+}
+
+.triangle_2 {
+    width: 0px;
+    height: 0px;
+    border: 10rpx solid rgb(254, 108, 54);
+    border-top-color: transparent;
+    border-left-color: transparent;
+    border-right-color: transparent;
+}
+
+/* View {
+    font-family: 'deyihei';
+} */
+
+/* @font-face {
+    font-family: unset;
+    font-family: 'alifont';
+    src: url('https://www.jiandatech.com/test/vape/Alibaba-PuHuiTi-Regular.otf') format('opentype');
+} */
