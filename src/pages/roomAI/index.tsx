@@ -1,51 +1,42 @@
-import { View, Input, Image, Text, ScrollView, Textarea, Button, } from "@tarojs/components";
-import { baseUrl, judgeInput, getWH, postApi, setStorageSync, getStorageSync, pxTorpx } from "../../static";
-import Taro, { useDidHide, useDidShow } from "@tarojs/taro";
+import { View, Image, Text, ScrollView, Textarea, Button, } from "@tarojs/components";
+import { baseUrl, judgeInput, getWH, postApi, setStorageSync, getStorageSync } from "../../static";
+import Taro, { useDidShow } from "@tarojs/taro";
 import userImg from "../../static/image/mine.jpg";
 import gptImg from "../../static/image/ChatGPT.png";
 import { useState, useEffect } from "react";
 import Loading from "../../components/loading";
 import topSearchImg from "../../static/image/topSearch.png";
 import "./index.css";
-
-import Translate from "../../components/translate";
+import { onAppShow, onAppHide } from "@tarojs/taro-h5";
 
 export default function Index() {
     const [heightMaxPx, setHeightMaxPx] = useState(0);
     const [widthMaxPx, setWidthMaxPx] = useState(0);
-    const [pxtorpx, setPxtorpx] = useState(getStorageSync("pxtorpx") || 1);
-    // const [userImg_1, setUserImg_1] = useState("/customerImg/default.png");
-    // const [userImg_2, setUserImg_2] = useState("/icon/AI.jpg");
     const [iptValue, setIptValue] = useState("");
     const [messageList, setMessageList] = useState<any[]>([]);
-    const [render, setRender] = useState(true);
     const [toView, setView] = useState("view0");
-    const [qusMessage, setQusMessage] = useState("");
-    const [isExist, setExist] = useState(false);
-    const [selectIndex, setSelectIndex] = useState(0);
     const [messageTypes, setMessageTypes] = useState<any[]>([]);
     const [isPending, setPending] = useState(false);
-    const [assistantPass, setAssistantPass] = useState(false);
     const [endIndex, setEndIndex] = useState<number>(10086);
-    // const [preTop, setPreTop] = useState<number>(0);
     const [addRender, setAddRender] = useState(false);
     const [isAnswering, setAnswering] = useState(false);
-    // let endIndex = 100;
     const [preSendTime, setSendTime] = useState(0);
     const [WS, setWS] = useState<WebSocket>();
 
     let outTimer;
-    // const [outTimer, setOutTimer] = useState<any>("");
-    // let contentLength = 0;
     const [contentLength, setContentLength] = useState(0);
 
-    let preTop = 0;
+    useEffect(() => {
+        onAppShow(() => {
+            connectSocket();
+        })
+    }, [])
 
-    let isResponsing = true;
+    let preTop = 0;
     let scrollTop = 0;
     const Threshold = 100;
     const scrollStyle = {
-        height: `${heightMaxPx - 70}px`,
+        height: `${heightMaxPx * 0.95}px`,
         width: `${widthMaxPx}px`,
     };
 
@@ -54,39 +45,30 @@ export default function Index() {
         'imagesGenerations',
     ]
 
-    const connectSocket = (data) => {
-        // Taro.connectSocket({
-        //     url: "wss://duolabest.com/djWss",
-        //     header: {
-        //         'content-type': 'application/json',
-        //     },
-        //     protocols: ['stomp'],
-        //     success: res => {
-        //         console.log("success = ", res);
-        //     },
-        //     fail: res => {
-        //         console.log("fail");
-        //     },
-        //     complete: res => {
-        //         console.log("complete = ", res);
-        //     }
-        // })
-        // setWS(new WebSocket('wss://duolabest.com/djWss'));
+    onbeforeunload = () => {
+        WS?.close(4445, 'logOut');
+    }
+
+    onAppHide(() => {
+        WS?.close(4445, 'logOut');
+    })
+
+
+
+    const connectSocket = () => {
         const ws = new WebSocket('wss://duolabest.com/djWss');
         setWS(ws);
-        // ws.send("test")
-        // ws.onclose
-        // ws.onerror
-        // ws.onmessage
         ws.onopen = e => {
-            console.log("连接建立 = ", e);
-            // ws.send("你好");
+            console.log("连接建立");
         }
         ws.onclose = e => {
-            console.log("连接关闭 = ", e);
+            console.log("连接关闭");
+            if (e.reason == 'logOut') {
+            } else {
+                connectSocket();
+            }
         }
         ws.onmessage = res => {
-            // console.log("数据响应 = ", e);
             setContentLength(pre => ++pre);
             test++;
             setTimeout(() => {
@@ -116,15 +98,11 @@ export default function Index() {
                             console.log(e);
                         }
                         let letter = str != undefined ? str : '';
-                        // if (letter != "") {
-                        //     contentLength++;
-                        // }
                         msgArr[lent].content = msgArr[lent].content + letter;
                     }
                 }
 
                 setMessageList(msgArr);
-                setRender(pre => !pre);
                 let numIndex = Math.random() * 100000;
                 setEndIndex(parseInt(numIndex.toString()));
 
@@ -144,25 +122,6 @@ export default function Index() {
         }
     };
 
-    useDidHide(() => {
-        // closeSocket("logOut");
-        // WS
-        // let geniusAI = getStorageSync("geniusAI");
-        // if (geniusAI == 'true') {
-        //     postApi(`${baseUrl}/djServer/updateGeniusMessages`, {
-        //         openId: getStorageSync("openId"),
-        //         geniusMessages: getStorageSync("geniusMessages"),
-        //         geniusDate: Date.now(),
-        //     })
-        // } else {
-        //     postApi(`${baseUrl}/djServer/insertGeniusMessages`, {
-        //         openId: getStorageSync("openId"),
-        //         geniusMessages: getStorageSync("geniusMessages"),
-        //         geniusDate: Date.now(),
-        //     })
-        // }
-    })
-
     let test = 0;
     useEffect(() => {
         if (contentLength == 0) {
@@ -170,73 +129,24 @@ export default function Index() {
         }
     }, [contentLength])
 
-    const beforeUnload = () => {
-        // WS?.close(-1, 'logOut');
-        WS?.send("wakka")
-    }
-
-    useEffect(() => {
-        // window.addEventListener('beforeunload', beforeUnload);
-        window.onbeforeunload = () => {
-            // WS?.close(-1, 'logOut');
-            WS?.send("wakka");
-            return;
-        }
-    }, [])
-
     useDidShow(() => {
-
-        console.log(")GIN")
-        connectSocket("logIn");
         getWH((w, h) => {
             setWidthMaxPx(w);
             setHeightMaxPx(h);
             console.log(w, typeof w);
             console.log(h, typeof h);
         })
+        connectSocket();
     })
 
     const sendData = data => {
         console.log("数据 = ", data);
-        WS?.send(data)
+        WS?.send(data);
     }
 
     useEffect(() => {
         setView("view" + endIndex);
     }, [addRender])
-
-    const shareWeChatApp = () => {
-        Taro.useShareAppMessage(res => {
-            if (res.from === 'button') {
-                // 来自页面内转发按钮
-                console.log(res.target)
-            }
-            return {
-                title: 'Genius AI',
-                path: 'pages/roomAI/index',
-                imageUrl: 'https://duolago.cn/gpt/default.jpg',
-            }
-        })
-    }
-
-    const dynamicTitle = () => {
-        let str = "chatGPT";
-        let i = 0;
-        let timeInterval = setInterval(() => {
-            if (i % 3 == 0) {
-                str = "chatGPT";
-            }
-            str = str + ".";
-            if (isResponsing) {
-                Taro.setNavigationBarTitle({ title: str });
-            } else {
-                Taro.setNavigationBarTitle({ title: 'chatGPT' });
-                clearInterval(timeInterval)
-            }
-            i++;
-        }, 500)
-    }
-
 
     const inputing = e => {
         if (e.detail.value == "") {
@@ -286,12 +196,12 @@ export default function Index() {
 
     const renderTopSearch = () => {
         return topSearchTitle.map((item, index) => {
-            return <>
-                <View key={item.id} onClick={() => { sendMessage(item.content); }} style={{ width: "100%", height: "45px", display: "flex", alignItems: "center" }}>
+            return <View key={item.id}>
+                <View onClick={() => { sendMessage(item.content); }} style={{ width: "100%", height: "45px", display: "flex", alignItems: "center" }}>
                     <Image src={topSearchImg} style={{ width: "30px", height: "30px" }} />
                     <Text style={{ paddingLeft: "10px" }} >{item.content}</Text>
                 </View>
-            </>
+            </View>
         })
     }
 
@@ -301,7 +211,7 @@ export default function Index() {
         setStorageSync("geniusMessages", geniusMessages + val + '@$&');
         if (judgeInput(val)) {
             outTimer = setTimeout(() => {
-                // closeSocket("");
+                WS?.close(4444, 'timeout');
                 setAnswering(false); // 事件触发代表服务器半分钟无响应，此时可认为请求出错
                 setPending(false);
                 let msgArr = messageList;
@@ -316,11 +226,10 @@ export default function Index() {
             });
             let messageTypeArr = messageTypes;
             messageTypeArr.push('text');
-            messageTypeArr.push(selectIndex == 0 ? 'text' : 'img');
             setMessageTypes(messageTypeArr);
             sendData(JSON.stringify({
                 msgArr,
-                apiType: apiTypes[selectIndex],
+                apiType: apiTypes[0],
                 outTimer
             }));
             msgArr.push({
@@ -330,7 +239,6 @@ export default function Index() {
             setMessageList(msgArr);
             let numIndex = Math.random() * 100000;
             setEndIndex(parseInt(numIndex.toString()));
-            setRender(pre => !pre);
             setAddRender(pre => !pre);
         } else {
             Taro.showToast({
@@ -343,34 +251,25 @@ export default function Index() {
 
     const renderContent = () => {
         return messageList.map((item, index) => {
-            // console.log("ITEM = ", item);
-            console.log(Date.now());
-            return <>
+            return <View key={index}>
                 {
                     (item.role == 'assistant') ?
-                        <View key={index} className="flexStart" id={"view" + index} style={{ width: `${widthMaxPx}px`, height: "auto", marginTop: "20px" }}>
+                        <View className="flexStart" id={"view" + index} style={{ width: `${widthMaxPx}px`, height: "auto", marginTop: "20px" }}>
                             <View style={{ width: "30px", height: "30px", borderRadius: "50%", marginLeft: "8px", backgroundColor: "white" }}>
                                 <Image style={{ width: "30px", height: "30px", borderRadius: "50%" }} src={gptImg} />
                             </View>
-                            <View className="flexCenter" style={{ wordBreak: "break-word", wordWrap: "break-word", marginLeft: "8px", backgroundColor: "yellow", maxWidth: `${widthMaxPx * 0.6}px`, padding: "8px 5px 8px 10px", height: "auto", borderRadius: "7px" }}>
+                            <View className="flexCenter" style={{ wordBreak: "break-word", wordWrap: "break-word", marginLeft: "8px", maxWidth: `${widthMaxPx * 0.6}px`, padding: "8px 5px 8px 10px", height: "auto", borderRadius: "7px" }}>
                                 {
                                     isPending && index == (messageList.length - 1) ? <Loading desc={'回答正在生成中~'} /> : <Text style={{ wordBreak: "break-word", wordWrap: "break-word" }} selectable={true} userSelect={true}>{item.content}</Text>
                                 }
                             </View>
-                            <View className="flexCenter" style={{ width: "60px", height: "1px", backgroundColor: "aqua" }}>
+                            <View className="flexCenter" style={{ width: "60px", height: "1px", }}>
 
                             </View>
-                            {/* <View className="flexCenter" style={{ wordBreak: "break-word", wordWrap: "break-word", marginLeft: "15rpx", backgroundColor: "rgb(245,245,245)", maxWidth: "480rpx", padding: "10rpx 10rpx 10rpx 10rpx", height: "auto", borderRadius: "7px" }}>
-                                {
-                                    isPending && index == (messageList.length - 1) ? <Loading desc={'回答正在生成中~'} /> : <Text style={{ wordBreak: "break-word", wordWrap: "break-word" }} selectable={true} userSelect={true}>{item.content}</Text>
-                                }
-                            </View>
-                            <View className="flexCenter" style={{ width: "60rpx", height: "65rpx" }}>
-
-                            </View> */}
-                        </View> :
-                        <View key={index} className="flexEnd" id={"view" + index} style={{ width: `${widthMaxPx}px`, height: "auto", marginTop: "20px" }}>
-                            <View className="flexCenter" style={{ width: "60px", height: "1px", backgroundColor: "aqua" }}>
+                        </View>
+                        :
+                        <View className="flexEnd" id={"view" + index} style={{ width: `${widthMaxPx}px`, height: "auto", marginTop: "20px" }}>
+                            <View className="flexCenter" style={{ width: "60px", height: "1px", }}>
 
                             </View>
                             <View className="flexCenter" style={{ wordBreak: "break-word", wordWrap: "break-word", marginRight: "8px", backgroundColor: "rgb(245,245,245)", maxWidth: `${widthMaxPx * 0.6}px`, padding: "8px 5px 8px 10px", height: "auto", borderRadius: "7px" }}>
@@ -379,17 +278,8 @@ export default function Index() {
                             <View style={{ width: "30px", height: "30px", borderRadius: "50%", marginRight: "8px", backgroundColor: "white" }}>
                                 <Image style={{ width: "30px", height: "30px", borderRadius: "50%" }} src={userImg} />
                             </View>
-                            {/* <View className="flexCenter" style={{ width: "60px", height: "65px" }}>
-
-                            </View> */}
-                            {/* <View className="flexCenter" style={{ wordBreak: "break-word", wordWrap: "break-word", marginRight: "15rpx", backgroundColor: "rgb(245,245,245)", maxWidth: "480rpx", padding: "10rpx 10rpx 10rpx 10rpx", height: "auto", borderRadius: "7px" }}>
-                                <Text style={{ wordBreak: "break-word", wordWrap: "break-word", }} selectable={true} userSelect={true}>{item.content}</Text>
-                            </View>
-                            <View style={{ width: "65rpx", height: "65rpx", borderRadius: "50%", marginRight: "15rpx" }}>
-                                <Image style={{ width: "100%", height: "100%", borderRadius: "50%" }} src={userImg} />
-                            </View> */}
                         </View>
-                }</>
+                }</View>
         })
     }
 
@@ -422,6 +312,7 @@ export default function Index() {
 
     return <>
         <View style={{ position: "fixed", left: "0px", top: "0px", width: "100vw", height: heightMaxPx + 'px', zIndex: "1", backgroundColor: "white" }}></View>
+
         <View style={{ width: `${widthMaxPx}px`, height: 'auto', position: "relative", zIndex: "10", backgroundColor: "white", fontSize: "15px" }}>
             <ScrollView
                 className='scrollview'
@@ -446,22 +337,26 @@ export default function Index() {
 
                     </View>
                 </View>
-                {/* <View key="def" className="flexCenter" style={{ width: "100%", height: "auto", marginTop: "20px" }}>
+                <View key="def" className="flexCenter" style={{ width: "100%", height: "auto", marginTop: "20px" }}>
                     <View key="mfs" style={{ width: "80%", height: "auto", backgroundColor: "rgb(253,244,242)", borderRadius: "7px" }}>
                         {topSearchTitle.length == 0 ? renderTopSearch() : renderTopSearch()}
                     </View>
-                </View> */}
+                </View>
+                <View id={"view" + endIndex} className="scroll_view" style={{ width: `${widthMaxPx}px`, height: `${heightMaxPx * 0.01}px`, marginTop: "70px", position: "relative", }}></View>
+
                 {
-                    // render ? renderContent() : renderContent()
                     renderContent()
                 }
-                <View key="gju" id={"view" + endIndex} className="scroll_view" style={{ width: `${widthMaxPx}px`, height: "60px", position: "relative", backgroundColor: "aqua" }}></View>
             </ScrollView>
 
-            <View className="flexAround" style={{ position: "fixed", bottom: "20px", left: "0px", width: `${widthMaxPx}px`, height: "auto", alignItems: "center", backgroundColor: "yellow" }}>
-                <View className="flexCenter" style={{ paddingBottom: "10px", paddingTop: "10px", width: "300px", height: 'auto', backgroundColor: "rgb(245,245,245)", borderRadius: "100px", }}>
-                    <Textarea placeholder="向Genius AI提问…" maxlength={100} disableDefaultPadding={true} focus={false} fixed={true} cursor={0} selectionStart={-1} selectionEnd={-1} showConfirmBar={false} value={iptValue} autoHeight={true} adjustPosition={true} onInput={(e) => inputing(e)} cursorSpacing={15}
-                        style={{ width: "85%", caretColor: "yellow",backgroundColor:"yellow" }}
+            <View className="flexAround" style={{ position: "fixed", bottom: "20px", left: "0px", width: `${widthMaxPx}px`, height: "auto", alignItems: "center", }}>
+                <View className="flexCenter" style={{ paddingBottom: "10px", paddingTop: "10px", width: "300px", height: 'auto', backgroundColor: "rgb(245,245,245)", borderRadius: "100px", fontSize: "30px" }}>
+                    <Textarea placeholder="向Genius AI提问…" maxlength={100} disableDefaultPadding={true} focus={false} fixed={false} cursor={0} selectionStart={-1} selectionEnd={-1} showConfirmBar={false} value={iptValue} autoHeight={true} adjustPosition={true} onInput={(e) => inputing(e)} cursorSpacing={0}
+                        style={{
+                            width: "85%", caretColor: "yellow", backgroundColor: "", maxHeight: "100px",
+                            resize: "vertical",
+                            height: "20px"
+                        }}
                     />
                 </View>
                 {
@@ -478,8 +373,8 @@ export default function Index() {
                         }} style={iptValue == "" ? { opacity: '0.5' } : {}} >发送</View>
                 }
             </View>
-            {/* <View style={{ position: "fixed", bottom: "0rpx", left: "0rpx", width: `${widthMaxPx}px`, height: "40px", backgroundColor: "white" }} >
-            </View> */}
+            <View style={{ position: "fixed", bottom: "0px", left: "0px", width: `${widthMaxPx}px`, height: "10px", backgroundColor: "white" }} >
+            </View>
         </View>
     </>
 }

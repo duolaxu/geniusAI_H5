@@ -65,7 +65,7 @@ const config = {
     //     }
     // },
     // useHtmlComponents: true,
-    publicPath: '/',
+    publicPath: '/geniusai',
     staticDirectory: 'static',
     postcss: {
       autoprefixer: {

@@ -8,8 +8,11 @@ export const screenInfo = async (callback: Function) => { // 手机屏幕信息
 
 export const getWH = async (callback: Function) => { // 手机屏幕信息
     const res = await Taro.getSystemInfo();
-    const width = res.windowWidth;
-    const height = res.windowHeight; // 屏幕可用高度
+    console.log("屏幕信息 = ", res);
+    // const width = res.windowWidth;
+    // const height = res.windowHeight; // 屏幕可用高度
+    const width = res.screenWidth;
+    const height = res.screenHeight; // 屏幕可用高度
     // const pxTorpx: number = (750 / width); // px与rpx的换算
     // const heightRpx = height * pxTorpx; // 屏幕高度，单位rpx
     callback(width, height);
