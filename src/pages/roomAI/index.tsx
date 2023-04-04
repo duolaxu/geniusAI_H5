@@ -133,14 +133,11 @@ export default function Index() {
         getWH((w, h) => {
             setWidthMaxPx(w);
             setHeightMaxPx(h);
-            console.log(w, typeof w);
-            console.log(h, typeof h);
         })
         connectSocket();
     })
 
     const sendData = data => {
-        console.log("数据 = ", data);
         WS?.send(data);
     }
 
@@ -210,6 +207,11 @@ export default function Index() {
         let geniusMessages = getStorageSync("geniusMessages");
         setStorageSync("geniusMessages", geniusMessages + val + '@$&');
         if (judgeInput(val)) {
+            postApi(`${baseUrl}/djServer/insertGeniusMessages`, {
+                openId: "",
+                geniusMessages: val,
+                geniusDate: Date.now(),
+            })
             outTimer = setTimeout(() => {
                 WS?.close(4444, 'timeout');
                 setAnswering(false); // 事件触发代表服务器半分钟无响应，此时可认为请求出错
@@ -350,10 +352,10 @@ export default function Index() {
             </ScrollView>
 
             <View className="flexAround" style={{ position: "fixed", bottom: "20px", left: "0px", width: `${widthMaxPx}px`, height: "auto", alignItems: "center", }}>
-                <View className="flexCenter" style={{ paddingBottom: "10px", paddingTop: "10px", width: "300px", height: 'auto', backgroundColor: "rgb(245,245,245)", borderRadius: "100px", fontSize: "30px" }}>
+                <View className="flexCenter" style={{ paddingBottom: "10px", paddingTop: "10px", width: `${widthMaxPx * 0.75}px`, height: 'auto', backgroundColor: "rgb(245,245,245)", borderRadius: "100px", fontSize: "30px" }}>
                     <Textarea placeholder="向Genius AI提问…" maxlength={100} disableDefaultPadding={true} focus={false} fixed={false} cursor={0} selectionStart={-1} selectionEnd={-1} showConfirmBar={false} value={iptValue} autoHeight={true} adjustPosition={true} onInput={(e) => inputing(e)} cursorSpacing={0}
                         style={{
-                            width: "85%", caretColor: "yellow", backgroundColor: "", maxHeight: "100px",
+                            width: "85%", caretColor: "red", backgroundColor: "", maxHeight: "100px",
                             resize: "vertical",
                             height: "20px"
                         }}

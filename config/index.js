@@ -1,5 +1,5 @@
 const config = {
-  projectName: 'diancan',
+  projectName: 'geniusai',
   date: '2022-9-14',
   designWidth: 750,
   deviceRatio: {
